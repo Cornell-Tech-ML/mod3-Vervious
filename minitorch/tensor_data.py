@@ -70,9 +70,9 @@ def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
 
     # Use the provided solution because mine was having trouble with numba
     cur_ord = ordinal + 0
-    for i in range(len(shape) - 1, -1, -1):
-        sh = shape[i]
-        out_index[i] = int(cur_ord % sh)
+    for z in range(len(shape) - 1, -1, -1):
+        sh = shape[z]
+        out_index[z] = int(cur_ord % sh)
         cur_ord = cur_ord // sh
 
 

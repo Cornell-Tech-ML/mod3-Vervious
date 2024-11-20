@@ -368,16 +368,17 @@ class Tensor:
         if dim is not None:
             return Sum.apply(self, self._ensure_tensor(dim))
         else:
-            # flatten tensor, but first make contiguous
-            contig_indices = sorted(
-                range(len(self.shape)),
-                key=lambda i: self._tensor.strides[i],
-                reverse=True,
-            )
-            contig = self.permute(*contig_indices)
-            # print(contig._tensor.strides)
-            reshaped = contig.view(int(operators.prod(self.shape)))
-            return Sum.apply(reshaped, self._ensure_tensor(0))
+            return Sum.apply(self.contiguous().view(self.size), self._ensure_tensor(0))
+            # # flatten tensor, but first make contiguous
+            # contig_indices = sorted(
+            #     range(len(self.shape)),
+            #     key=lambda i: self._tensor.strides[i],
+            #     reverse=True,
+            # )
+            # contig = self.permute(*contig_indices)
+            # # print(contig._tensor.strides)
+            # reshaped = contig.view(int(operators.prod(self.shape)))
+            # return Sum.apply(reshaped, self._ensure_tensor(0))
 
     def mean(self, dim: TensorLike | None = None) -> Tensor:
         """Mean tensor along dimension."""

@@ -171,14 +171,17 @@ def tensor_map(
     ) -> None:
         # Implemented for Task 3.1
 
-        if np.array_equal(in_strides, out_strides):
+        if (
+            np.array_equal(in_shape, out_shape) and 
+            np.array_equal(in_strides, out_strides)
+        ):
             for i in prange(len(out)):
                 out[i] = fn(in_storage[i])
             return
 
         for i in prange(len(out)):
-            in_index = np.zeros(MAX_DIMS, dtype=np.int32)
-            out_index = np.zeros(MAX_DIMS, dtype=np.int32)
+            in_index = np.empty(MAX_DIMS, dtype=np.int32)
+            out_index = np.empty(MAX_DIMS, dtype=np.int32)
 
             to_index(i, out_shape, out_index)
 
@@ -226,13 +229,21 @@ def tensor_zip(
         b_shape: Shape,
         b_strides: Strides,
     ) -> None:
-        size = 1
-        size *= len(out)
-        # Loop over everything (inefficient for now)
-        for i in prange(size):
-            out_index: Index = np.array(MAX_DIMS, dtype=np.int32)
-            a_index: Index = np.array(MAX_DIMS, dtype=np.int32)
-            b_index: Index = np.array(MAX_DIMS, dtype=np.int32)
+        
+        if (
+            np.array_equal(a_shape, b_shape) and np.array_equal(a_shape, out_shape)
+            and np.array_equal(a_strides, b_strides) 
+            and np.array_equal(a_strides, out_strides)
+        ):
+            print(out_shape, a_shape, b_shape)
+            for i in prange(len(out)):
+                out[i] = fn(a_storage[i], b_storage[i])
+            return
+        
+        for i in prange(len(out)):
+            out_index: Index = np.empty(MAX_DIMS, dtype=np.int32)
+            a_index: Index = np.empty(MAX_DIMS, dtype=np.int32)
+            b_index: Index = np.empty(MAX_DIMS, dtype=np.int32)
 
             # iterate over all possible out_indices
             to_index(i, out_shape, out_index)
@@ -283,18 +294,21 @@ def tensor_reduce(
         # Loop over everything (inefficient for now)
         reduce_size = a_shape[reduce_dim]
 
-        for i in prange(np.int32(len(out))):
-            out_index: Index = np.array(MAX_DIMS, dtype=np.int32)
+        for i in prange(len(out)):
+            out_index: Index = np.empty(MAX_DIMS, dtype=np.int32)
             # iterate over all possible out_indices
-            # to_index(i, out_shape, out_index)
+            to_index(i, out_shape, out_index)
 
             # get corresponding set of indices for a
             out_ordinal = index_to_position(out_index, out_strides)
+            a_ordinal: int = index_to_position(out_index, a_strides)
+            val = a_storage[a_ordinal]
 
-            for j in range(reduce_size):
-                out_index[reduce_dim] = j
-                a_ordinal = index_to_position(out_index, a_strides)
-                out[out_ordinal] = fn(out[out_ordinal], a_storage[a_ordinal])
+            for _ in range(1, reduce_size):
+                a_ordinal += a_strides[reduce_dim]
+                val = fn(val, a_storage[a_ordinal])
+            
+            out[out_ordinal] = val
 
     return njit(_reduce, parallel=True)  # type: ignore
 
