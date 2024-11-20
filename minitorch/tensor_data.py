@@ -46,7 +46,7 @@ def index_to_position(index: Index, strides: Strides) -> int:
         Position in storage
 
     """
-    return sum([index[i] * strides[i] for i in range(len(index))])
+    return sum([index[l] * strides[l] for l in range(len(index))])
 
 
 def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
@@ -62,10 +62,18 @@ def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
         out_index : return index corresponding to position.
 
     """
-    for i in range(len(shape)):
-        out_index[i] = ordinal % shape[i]
-        ordinal = ordinal // shape[i]
-    return None
+    # k = ordinal + 0
+    # for i in range(len(shape)):
+    #     out_index[i] = k % shape[i]
+    #     k = k // shape[i]
+    # return None
+
+    # Use the provided solution because mine was having trouble with numba
+    cur_ord = ordinal + 0
+    for i in range(len(shape) - 1, -1, -1):
+        sh = shape[i]
+        out_index[i] = int(cur_ord % sh)
+        cur_ord = cur_ord // sh
 
 
 def broadcast_index(
@@ -89,11 +97,11 @@ def broadcast_index(
         None
 
     """
-    for i in range(len(shape)):
-        if shape[-1 - i] == 1:
-            out_index[-1 - i] = 0
+    for i, s in enumerate(shape):
+        if s > 1:
+            out_index[i] = big_index[i + (len(big_shape) - len(shape))]
         else:
-            out_index[-1 - i] = big_index[-1 - i]
+            out_index[i] = 0
     return None
 
 

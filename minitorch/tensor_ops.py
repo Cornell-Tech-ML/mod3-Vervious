@@ -7,7 +7,7 @@ from typing_extensions import Protocol
 
 from . import operators
 from .tensor_data import (
-    # MAX_DIMS,
+    MAX_DIMS,
     broadcast_index,
     index_to_position,
     shape_broadcast,
@@ -275,13 +275,13 @@ def tensor_map(
         in_strides: Strides,
     ) -> None:
         # Loop over everything (inefficient for now)
-        out_index: Index = np.array(out_shape)
+        out_index: Index = np.array(MAX_DIMS, dtype=np.int32)
         for i in range(len(out)):
             # iterate over all possible out_indices
             to_index(i, out_shape, out_index)
 
             # get corresponding in_index
-            in_index: Index = np.array(in_shape)
+            in_index: Index = np.array(MAX_DIMS, dtype=np.int32)
             broadcast_index(out_index, out_shape, in_shape, in_index)
 
             in_ordinal = index_to_position(in_index, in_strides)
@@ -333,15 +333,15 @@ def tensor_zip(
         b_strides: Strides,
     ) -> None:
         # Loop over everything (inefficient for now)
-        out_index: Index = np.array(out_shape)
+        out_index: Index = np.array(MAX_DIMS, dtype=np.int32)
         for i in range(len(out)):
             # iterate over all possible out_indices
             to_index(i, out_shape, out_index)
 
             # get corresponding indices for a and b
-            a_index: Index = np.array(a_shape)
+            a_index: Index = np.array(MAX_DIMS, dtype=np.int32)
             broadcast_index(out_index, out_shape, a_shape, a_index)
-            b_index: Index = np.array(b_shape)
+            b_index: Index = np.array(MAX_DIMS, dtype=np.int32)
             broadcast_index(out_index, out_shape, b_shape, b_index)
 
             a_ordinal = index_to_position(a_index, a_strides)
@@ -380,13 +380,13 @@ def tensor_reduce(
         reduce_dim: int,
     ) -> None:
         # Loop over everything (inefficient for now)
-        out_index: Index = np.array(out_shape)
+        out_index: Index = np.array(MAX_DIMS, dtype=np.int32)
         for i in range(len(out)):
             # iterate over all possible out_indices
             to_index(i, out_shape, out_index)
 
             # get corresponding set of indices for a
-            a_index: Index = np.array(a_shape)
+            a_index: Index = np.array(MAX_DIMS, dtype=np.int32)
             broadcast_index(out_index, out_shape, a_shape, a_index)
             a_ordinal = index_to_position(a_index, a_strides)
             val = a_storage[a_ordinal]

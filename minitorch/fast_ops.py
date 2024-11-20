@@ -30,6 +30,7 @@ Fn = TypeVar("Fn")
 
 
 def njit(fn: Fn, **kwargs: Any) -> Fn:
+    """Decorator to JIT compile functions with NUMBA."""
     return _njit(inline="always", **kwargs)(fn)  # type: ignore
 
 
@@ -168,8 +169,25 @@ def tensor_map(
         in_shape: Shape,
         in_strides: Strides,
     ) -> None:
-        # TODO: Implement for Task 3.1.
-        raise NotImplementedError("Need to implement for Task 3.1")
+        # Implemented for Task 3.1
+
+        if np.array_equal(in_strides, out_strides):
+            for i in prange(len(out)):
+                out[i] = fn(in_storage[i])
+            return
+
+        for i in prange(len(out)):
+            in_index = np.zeros(MAX_DIMS, dtype=np.int32)
+            out_index = np.zeros(MAX_DIMS, dtype=np.int32)
+
+            to_index(i, out_shape, out_index)
+
+            broadcast_index(out_index, out_shape, in_shape, in_index)
+
+            in_ordinal = index_to_position(in_index, in_strides)
+            out_ordinal = index_to_position(out_index, out_strides)
+            out[out_ordinal] = fn(in_storage[in_ordinal])
+
 
     return njit(_map, parallel=True)  # type: ignore
 
@@ -208,8 +226,26 @@ def tensor_zip(
         b_shape: Shape,
         b_strides: Strides,
     ) -> None:
-        # TODO: Implement for Task 3.1.
-        raise NotImplementedError("Need to implement for Task 3.1")
+        size = 1
+        size *= len(out)
+        # Loop over everything (inefficient for now)
+        for i in prange(size):
+            out_index: Index = np.array(MAX_DIMS, dtype=np.int32)
+            a_index: Index = np.array(MAX_DIMS, dtype=np.int32)
+            b_index: Index = np.array(MAX_DIMS, dtype=np.int32)
+
+            # iterate over all possible out_indices
+            to_index(i, out_shape, out_index)
+
+            # get corresponding indices for a and b
+            broadcast_index(out_index, out_shape, a_shape, a_index)
+            broadcast_index(out_index, out_shape, b_shape, b_index)
+
+            a_ordinal = index_to_position(a_index, a_strides)
+            b_ordinal = index_to_position(b_index, b_strides)
+            out_ordinal = index_to_position(out_index, out_strides)
+            out[out_ordinal] = fn(a_storage[a_ordinal], b_storage[b_ordinal])
+
 
     return njit(_zip, parallel=True)  # type: ignore
 
@@ -244,8 +280,21 @@ def tensor_reduce(
         a_strides: Strides,
         reduce_dim: int,
     ) -> None:
-        # TODO: Implement for Task 3.1.
-        raise NotImplementedError("Need to implement for Task 3.1")
+        # Loop over everything (inefficient for now)
+        reduce_size = a_shape[reduce_dim]
+
+        for i in prange(np.int32(len(out))):
+            out_index: Index = np.array(MAX_DIMS, dtype=np.int32)
+            # iterate over all possible out_indices
+            # to_index(i, out_shape, out_index)
+
+            # get corresponding set of indices for a
+            out_ordinal = index_to_position(out_index, out_strides)
+
+            for j in range(reduce_size):
+                out_index[reduce_dim] = j
+                a_ordinal = index_to_position(out_index, a_strides)
+                out[out_ordinal] = fn(out[out_ordinal], a_storage[a_ordinal])
 
     return njit(_reduce, parallel=True)  # type: ignore
 
