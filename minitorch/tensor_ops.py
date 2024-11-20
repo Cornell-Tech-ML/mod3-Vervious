@@ -380,24 +380,35 @@ def tensor_reduce(
         reduce_dim: int,
     ) -> None:
         # Loop over everything (inefficient for now)
-        out_index: Index = np.array(MAX_DIMS, dtype=np.int32)
+        # out_index: Index = np.zeros(MAX_DIMS, dtype=np.int32)
+        # for i in range(len(out)):
+        #     # iterate over all possible out_indices
+        #     to_index(i, out_shape, out_index)
+
+        #     # get corresponding set of indices for a
+        #     a_index: Index = np.zeros(MAX_DIMS, dtype=np.int32)
+        #     broadcast_index(out_index, out_shape, a_shape, a_index)
+        #     a_ordinal = index_to_position(a_index, a_strides)
+        #     val = a_storage[a_ordinal]
+
+        #     for j in range(1, a_shape[reduce_dim]):
+        #         a_index[reduce_dim] = j
+        #         a_ordinal = index_to_position(a_index, a_strides)
+        #         val = fn(val, a_storage[a_ordinal])
+
+        #     out_ordinal = index_to_position(out_index, out_strides)
+        #     out[out_ordinal] = val
+        
+        # use class solution due to issues with cuda tests for some reason
+        out_index: Index = np.zeros(MAX_DIMS, dtype=np.int32)
+        reduce_size = a_shape[reduce_dim]
         for i in range(len(out)):
-            # iterate over all possible out_indices
             to_index(i, out_shape, out_index)
-
-            # get corresponding set of indices for a
-            a_index: Index = np.array(MAX_DIMS, dtype=np.int32)
-            broadcast_index(out_index, out_shape, a_shape, a_index)
-            a_ordinal = index_to_position(a_index, a_strides)
-            val = a_storage[a_ordinal]
-
-            for j in range(1, a_shape[reduce_dim]):
-                a_index[reduce_dim] = j
-                a_ordinal = index_to_position(a_index, a_strides)
-                val = fn(val, a_storage[a_ordinal])
-
-            out_ordinal = index_to_position(out_index, out_strides)
-            out[out_ordinal] = val
+            o = index_to_position(out_index, out_strides)
+            for s in range(reduce_size):
+                out_index[reduce_dim] = s
+                j = index_to_position(out_index, a_strides)
+                out[o] = fn(out[o], a_storage[j])
 
     return _reduce
 
