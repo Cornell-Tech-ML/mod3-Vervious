@@ -275,13 +275,13 @@ def tensor_map(
         in_strides: Strides,
     ) -> None:
         # Loop over everything (inefficient for now)
-        out_index: Index = np.array(MAX_DIMS, dtype=np.int32)
+        out_index: Index = np.zeros(MAX_DIMS, dtype=np.int32)
         for i in range(len(out)):
             # iterate over all possible out_indices
             to_index(i, out_shape, out_index)
 
             # get corresponding in_index
-            in_index: Index = np.array(MAX_DIMS, dtype=np.int32)
+            in_index: Index = np.zeros(MAX_DIMS, dtype=np.int32)
             broadcast_index(out_index, out_shape, in_shape, in_index)
 
             in_ordinal = index_to_position(in_index, in_strides)
@@ -333,15 +333,15 @@ def tensor_zip(
         b_strides: Strides,
     ) -> None:
         # Loop over everything (inefficient for now)
-        out_index: Index = np.array(MAX_DIMS, dtype=np.int32)
+        out_index: Index = np.zeros(MAX_DIMS, dtype=np.int32)
         for i in range(len(out)):
             # iterate over all possible out_indices
             to_index(i, out_shape, out_index)
 
             # get corresponding indices for a and b
-            a_index: Index = np.array(MAX_DIMS, dtype=np.int32)
+            a_index: Index = np.zeros(MAX_DIMS, dtype=np.int32)
             broadcast_index(out_index, out_shape, a_shape, a_index)
-            b_index: Index = np.array(MAX_DIMS, dtype=np.int32)
+            b_index: Index = np.zeros(MAX_DIMS, dtype=np.int32)
             broadcast_index(out_index, out_shape, b_shape, b_index)
 
             a_ordinal = index_to_position(a_index, a_strides)
@@ -400,6 +400,7 @@ def tensor_reduce(
         #     out[out_ordinal] = val
         
         # use class solution due to issues with cuda tests for some reason
+        # above solutions is probably still fine and not bugged.
         out_index: Index = np.zeros(MAX_DIMS, dtype=np.int32)
         reduce_size = a_shape[reduce_dim]
         for i in range(len(out)):
