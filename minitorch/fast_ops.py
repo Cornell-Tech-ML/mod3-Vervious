@@ -356,11 +356,40 @@ def _tensor_matrix_multiply(
         None : Fills in `out`
 
     """
+    # Assume we only need to support 3 dimensions
     a_batch_stride = a_strides[0] if a_shape[0] > 1 else 0
     b_batch_stride = b_strides[0] if b_shape[0] > 1 else 0
 
-    # TODO: Implement for Task 3.2.
-    raise NotImplementedError("Need to implement for Task 3.2")
+    # Implement for Task 3.2.
+    for k in prange(len(out)):
+
+        # assume out_strides has length 3, as does out_shape
+        # batch dimension
+        n = k // out_strides[0]  
+         # i is which row to sum over
+        i = (k % out_strides[0]) // out_strides[1] 
+        # j is which column
+        j = ((k % out_strides[0]) % out_strides[1]) // out_strides[2]
+
+        size = a_shape[-1] # should be equal to b_shape[-2]
+
+        # get (i,0)th element of a and (0,j)th element of b
+        a_base = n * a_batch_stride
+        b_base = n * b_batch_stride
+
+        a_start = a_base + i * a_strides[-2]
+        b_start = b_base + j * b_strides[-1]
+
+        a_increment = 0
+        b_increment = 0
+        val = 0
+        for _ in range(size):
+            print("* ", a_storage[a_start + a_increment], b_storage[b_start + b_increment])
+            val += a_storage[a_start + a_increment] * b_storage[b_start + b_increment]
+            a_increment += a_strides[-1]
+            b_increment += b_strides[-2]
+        
+        out[k] = val
 
 
 tensor_matrix_multiply = njit(_tensor_matrix_multiply, parallel=True)

@@ -46,7 +46,8 @@ def index_to_position(index: Index, strides: Strides) -> int:
         Position in storage
 
     """
-    return sum([index[l] * strides[l] for l in range(len(index))])
+    # assume length of strides is smaller
+    return sum([index[l] * strides[l] for l in range(len(strides))])
 
 
 def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
