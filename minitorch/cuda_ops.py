@@ -147,9 +147,6 @@ class CudaOps(TensorOps):
 
 # Implement
 
-@cuda.jit
-def compare_arrays(arr1, arr2, result):
-    pass
 
 def tensor_map(
     fn: Callable[[float], float],
