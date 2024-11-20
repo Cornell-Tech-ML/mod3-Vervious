@@ -313,10 +313,10 @@ def _sum_practice(out: Storage, a: Storage, size: int) -> None:
 
     # divide and conquer reduction
     # note block_dim = 2^5
-    nxt_leaf_count = BLOCK_DIM / 2
+    nxt_leaf_count = BLOCK_DIM // 2
     while nxt_leaf_count > 0:
         if pos < nxt_leaf_count:
-            cache[pos] += cache[pos + nxt_leaf_count]
+            cache[pos] += cache[pos + int(nxt_leaf_count)]
         nxt_leaf_count //= 2
         cuda.syncthreads()
 
