@@ -445,9 +445,36 @@ def _mm_practice(out: Storage, a: Storage, b: Storage, size: int) -> None:
         size (int): size of the square
 
     """
-    BLOCK_DIM = 32
-    # TODO: Implement for Task 3.3.
-    raise NotImplementedError("Need to implement for Task 3.3")
+    # BLOCK_DIM = 32
+    # Implement for Task 3.3.
+    # note size < 32 by assumption, so no need for tiling
+
+    # TODO: check if there is more than one block
+    # it seems that we only use one block...
+    # block_idx = cuda.blockIdx.x
+    i = cuda.threadIdx.x
+    j = cuda.threadIdx.y
+
+    # first, copy both a and b to shared memory
+    # initialize the memory
+    cacheA = cuda.shared.array((size, size), numba.float64)
+    cacheB = cuda.shared.array((size, size), numba.float64)
+
+    # copy in parallel
+    if i < size and j < size:
+        cacheA[i,j] = a[i*size + j]
+        cacheB[i,j] = b[i*size + j]
+    # synchronize threads
+    cuda.syncthreads()
+
+    # now, compute the dot product at each index
+    # where each index is a thread
+    if i < size and j < size:
+        val = 0.0
+        for k in range(size):
+            val += cacheA[i,k] * cacheB[k,j]
+        # write to global memory in parallel
+        out[i*size + j] = val
 
 
 jit_mm_practice = jit(_mm_practice)
@@ -511,13 +538,47 @@ def _tensor_matrix_multiply(
     pi = cuda.threadIdx.x
     pj = cuda.threadIdx.y
 
+    # Sum-dimension size, for intuition
+    sum_size = a_shape[-1] # equal to b_shape[-2]
+
     # Code Plan:
     # 1) Move across shared dimension by block dim.
     #    a) Copy into shared memory for a matrix.
     #    b) Copy into shared memory for b matrix
     #    c) Compute the dot produce for position c[i, j]
-    # TODO: Implement for Task 3.4.
-    raise NotImplementedError("Need to implement for Task 3.4")
+
+    # first, copy both a and b to shared memory
+    if i < BLOCK_DIM and j < BLOCK_DIM:
+        # get the base index for the batch
+        a_base_ord = batch * a_batch_stride
+        b_base_ord = batch * b_batch_stride
+
+        # get the base index for the current iteration
+        a_base_ord += 0
+
+        a_shared[i,j] = a_storage[a_base_ord + pi*a_strides[-2] + pj*a_strides[-1]]
+        b_shared[i,j] = b_storage[b_base_ord + pi*b_strides[-2] + pj*b_strides[-1]]
+    # synchronize threads
+    cuda.syncthreads()
+
+    # now, compute the dot product at each index
+    # where each index is a thread
+    width_in_blocks = -(sum_size // -BLOCK_DIM)
+    for K in range(width_in_blocks):
+        # combine tile at (i, K) and (K, j)
+        pass
+    if i < BLOCK_DIM and j < BLOCK_DIM:
+        val = 0.0
+        for k in range(BLOCK_DIM):
+            val += a_shared[i,k] * b_shared[k,j]
+        # write to global memory in parallel
+    
+    # final global write
+    ordin = batch*out_strides[0] + i*out_strides[-2] \
+        + j*out_strides[-1]
+    if ordin < out_size:
+        out[ordin] = val
+
 
 
 tensor_matrix_multiply = jit(_tensor_matrix_multiply)
