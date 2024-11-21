@@ -171,9 +171,8 @@ def tensor_map(
     ) -> None:
         # Implemented for Task 3.1
 
-        if (
-            np.array_equal(in_shape, out_shape) and 
-            np.array_equal(in_strides, out_strides)
+        if np.array_equal(in_shape, out_shape) and np.array_equal(
+            in_strides, out_strides
         ):
             for i in prange(len(out)):
                 out[i] = fn(in_storage[i])
@@ -190,7 +189,6 @@ def tensor_map(
             in_ordinal = index_to_position(in_index, in_strides)
             out_ordinal = index_to_position(out_index, out_strides)
             out[out_ordinal] = fn(in_storage[in_ordinal])
-
 
     return njit(_map, parallel=True)  # type: ignore
 
@@ -229,17 +227,17 @@ def tensor_zip(
         b_shape: Shape,
         b_strides: Strides,
     ) -> None:
-        
         if (
-            np.array_equal(a_shape, b_shape) and np.array_equal(a_shape, out_shape)
-            and np.array_equal(a_strides, b_strides) 
+            np.array_equal(a_shape, b_shape)
+            and np.array_equal(a_shape, out_shape)
+            and np.array_equal(a_strides, b_strides)
             and np.array_equal(a_strides, out_strides)
         ):
             print(out_shape, a_shape, b_shape)
             for i in prange(len(out)):
                 out[i] = fn(a_storage[i], b_storage[i])
             return
-        
+
         for i in prange(len(out)):
             out_index: Index = np.empty(MAX_DIMS, dtype=np.int32)
             a_index: Index = np.empty(MAX_DIMS, dtype=np.int32)
@@ -256,7 +254,6 @@ def tensor_zip(
             b_ordinal = index_to_position(b_index, b_strides)
             out_ordinal = index_to_position(out_index, out_strides)
             out[out_ordinal] = fn(a_storage[a_ordinal], b_storage[b_ordinal])
-
 
     return njit(_zip, parallel=True)  # type: ignore
 
@@ -307,7 +304,7 @@ def tensor_reduce(
             for _ in range(1, reduce_size):
                 a_ordinal += a_strides[reduce_dim]
                 val = fn(val, a_storage[a_ordinal])
-            
+
             out[out_ordinal] = val
 
     return njit(_reduce, parallel=True)  # type: ignore
@@ -362,16 +359,15 @@ def _tensor_matrix_multiply(
 
     # Implement for Task 3.2.
     for k in prange(len(out)):
-
         # assume out_strides has length 3, as does out_shape
         # batch dimension
-        n = k // out_strides[0]  
-         # i is which row to sum over
-        i = (k % out_strides[0]) // out_strides[1] 
+        n = k // out_strides[0]
+        # i is which row to sum over
+        i = (k % out_strides[0]) // out_strides[1]
         # j is which column
         j = ((k % out_strides[0]) % out_strides[1]) // out_strides[2]
 
-        size = a_shape[-1] # should be equal to b_shape[-2]
+        size = a_shape[-1]  # should be equal to b_shape[-2]
 
         # get (i,0)th element of a and (0,j)th element of b
         a_base = n * a_batch_stride
@@ -388,7 +384,7 @@ def _tensor_matrix_multiply(
             val += a_storage[a_start + a_increment] * b_storage[b_start + b_increment]
             a_increment += a_strides[-1]
             b_increment += b_strides[-2]
-        
+
         out[k] = val
 
 

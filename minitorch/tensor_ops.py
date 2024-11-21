@@ -398,7 +398,7 @@ def tensor_reduce(
 
         #     out_ordinal = index_to_position(out_index, out_strides)
         #     out[out_ordinal] = val
-        
+
         # use class solution due to issues with cuda tests for some reason
         # above solutions is probably still fine and not bugged.
         out_index: Index = np.zeros(MAX_DIMS, dtype=np.int32)

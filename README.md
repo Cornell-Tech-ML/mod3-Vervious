@@ -55,3 +55,11 @@ Size: 1024
     fast: 9.06136
     gpu: 0.87195
 ```
+
+# Task 3.5
+
+## Split dataset (GPU)
+
+## Simple dataset (GPU)
+
+## Xor dataset (GPU)

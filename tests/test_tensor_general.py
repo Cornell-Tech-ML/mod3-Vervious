@@ -376,7 +376,7 @@ def test_bmm(backend: str, data: DataObject) -> None:
         (a.contiguous().view(D, A, B, 1) * b.contiguous().view(1, 1, B, C))
         .sum(2)
         .view(D, A, C)
-    )    
+    )
     print("a and b ", a, b)
     print("final ", c, c2)
 
