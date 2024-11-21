@@ -558,10 +558,10 @@ def _tensor_matrix_multiply(
 
         # for a, i index never changes, but j increments by BLOCK_DIM
         a_copy_i = i
-        a_copy_j = K*BLOCK_DIM + pj
+        a_copy_j = K + pj # K*BLOCK_DIM
 
         # for b, j index never changes, but i increments by BLOCK_DIM
-        b_copy_i = K*BLOCK_DIM + pi
+        b_copy_i = K + pi
         b_copy_j = j
         
         # now, copy both a and b tiles to shared memory
