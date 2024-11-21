@@ -566,21 +566,21 @@ def _tensor_matrix_multiply(
         
         # now, copy both a and b tiles to shared memory
         if a_copy_i < a_shape[-2] and a_copy_j < a_shape[-1]:
-            a_shared[i,j] = a_storage[batch*a_batch_stride + \
+            a_shared[pi,pj] = a_storage[batch*a_batch_stride + \
                                   a_copy_i*a_strides[-2] + a_copy_j*a_strides[-1]]
         else:
-            a_shared[i,j] = 0.0
+            a_shared[pi,pj] = 0.0
         if b_copy_i < b_shape[-2] and b_copy_j < b_shape[-1]:
-            b_shared[i,j] = b_storage[batch*b_batch_stride + \
+            b_shared[pi,pj] = b_storage[batch*b_batch_stride + \
                                   b_copy_i*b_strides[-2] + b_copy_j*b_strides[-1]]
         else:
-            b_shared[i,j] = 0.0
+            b_shared[pi,pj] = 0.0
         # synchronize threads
         cuda.syncthreads()
 
         # now, compute the dot product at each index
         for k in range(BLOCK_DIM):
-            val += a_shared[i,k] * b_shared[k,j]
+            val += a_shared[pi,k] * b_shared[k,pj]
 
     # final global write
     ordin = batch*out_batch_stride + i*out_strides[-2] \
