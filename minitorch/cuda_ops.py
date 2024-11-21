@@ -586,9 +586,9 @@ def _tensor_matrix_multiply(
         cuda.syncthreads()
 
     # final global write
-    ordin = batch*out_strides[0] + i*out_strides[1] \
-        + j*out_strides[2]
-    if ordin < out_size:
+    ordin = batch*out_batch_stride + i*out_strides[-2] \
+        + j*out_strides[-1]
+    if ordin < out_size and i < out_shape[-2] and j < out_shape[-1]:
         out[ordin] = val
 
 
