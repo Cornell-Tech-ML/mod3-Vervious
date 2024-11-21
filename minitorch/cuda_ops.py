@@ -553,7 +553,7 @@ def _tensor_matrix_multiply(
     # tile movement
     width_in_blocks = -(sum_size // -BLOCK_DIM)
     val = 0.0
-    for K in range(width_in_blocks):
+    for K in range(0, a_shape[-1], BLOCK_DIM): #range(width_in_blocks):
         # combine tile at (i, K) and (K, j)
 
         # for a, i index never changes, but j increments by BLOCK_DIM
@@ -579,13 +579,14 @@ def _tensor_matrix_multiply(
         cuda.syncthreads()
 
         # now, compute the dot product at each index
-        for k in range(BLOCK_DIM):
-            val += a_shared[pi,k] * b_shared[k,pj]
+        if i < out_shape[-2] and j < out_shape[-1]:
+            for k in range(BLOCK_DIM):
+                val += a_shared[pi,k] * b_shared[k,pj]
         # synchronize to not accidentally overwrite shared data
         cuda.syncthreads()
 
     # final global write
-    ordin = batch*out_batch_stride + i*out_strides[-2] \
+    ordin = batch*out_strides[0] + i*out_strides[-2] \
         + j*out_strides[-1]
     if ordin < out_size:
         out[ordin] = val
