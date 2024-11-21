@@ -578,6 +578,9 @@ def _tensor_matrix_multiply(
         # synchronize threads
         cuda.syncthreads()
 
+        if i == 0 and j == 0:
+            print("SHARED ", K, batch, a_shared, b_shared)
+
         # now, compute the dot product at each index
         for k in range(BLOCK_DIM):
             val += a_shared[pi,k] * b_shared[k,pj]
