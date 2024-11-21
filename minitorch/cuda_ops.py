@@ -581,6 +581,8 @@ def _tensor_matrix_multiply(
         # now, compute the dot product at each index
         for k in range(BLOCK_DIM):
             val += a_shared[pi,k] * b_shared[k,pj]
+        # synchronize to not accidentally overwrite shared data
+        cuda.syncthreads()
 
     # final global write
     ordin = batch*out_batch_stride + i*out_strides[-2] \
