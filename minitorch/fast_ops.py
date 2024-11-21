@@ -384,7 +384,7 @@ def _tensor_matrix_multiply(
         b_increment = 0
         val = 0
         for _ in range(size):
-            print("* ", a_storage[a_start + a_increment], b_storage[b_start + b_increment])
+            # print("* ", a_storage[a_start + a_increment], b_storage[b_start + b_increment])
             val += a_storage[a_start + a_increment] * b_storage[b_start + b_increment]
             a_increment += a_strides[-1]
             b_increment += b_strides[-2]
