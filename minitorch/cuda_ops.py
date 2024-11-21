@@ -457,9 +457,8 @@ def _mm_practice(out: Storage, a: Storage, b: Storage, size: int) -> None:
 
     # first, copy both a and b to shared memory
     # initialize the memory
-    print(size)
-    cacheA = cuda.shared.array((size, size), numba.float64)
-    cacheB = cuda.shared.array((size, size), numba.float64)
+    cacheA = cuda.shared.array((32, 32), numba.float64)
+    cacheB = cuda.shared.array((32, 32), numba.float64)
 
     # copy in parallel
     if i < size and j < size:
