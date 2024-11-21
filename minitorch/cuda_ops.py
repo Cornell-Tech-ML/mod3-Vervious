@@ -564,7 +564,7 @@ def _tensor_matrix_multiply(
         b_copy_i = K*BLOCK_DIM + pi
         b_copy_j = j
         
-        # now, copy both a and b tiles to shared memory
+        # now, copy both a and b tiles to shared memory, taking care iwth idices
         if a_copy_i < a_shape[-2] and a_copy_j < a_shape[-1]:
             a_shared[pi,pj] = a_storage[batch*a_batch_stride + \
                                   a_copy_i*a_strides[-2] + a_copy_j*a_strides[-1]]
@@ -588,6 +588,7 @@ def _tensor_matrix_multiply(
     # final global write
     ordin = batch*out_batch_stride + i*out_strides[-2] \
         + j*out_strides[-1]
+    # make sure its in bounds, else we get weird bugs
     if ordin < out_size and i < out_shape[-2] and j < out_shape[-1]:
         out[ordin] = val
 

@@ -54,6 +54,13 @@ class Linear(minitorch.Module):
         # print("bais shape", self.bias.shape)
         # print("y shape", y.shape)
         return y
+    
+        # batch, in_size = x.shape
+        # matmul = x.view(batch, in_size, 1) * self.weights.value.view(1, in_size, self.out_size)
+        # matmul = matmul.sum(1)
+        # matmul = matmul.view(batch, self.out_size)
+        # y = matmul + self.bias.value.view(self.out_size)
+        # return y
 
 
 def default_log_fn(epoch, total_loss, correct, losses):
