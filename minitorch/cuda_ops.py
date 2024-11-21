@@ -382,7 +382,7 @@ def tensor_reduce(
         # TODO Note that out_shape[reduce_dim] can be > 1 if reduce_size > 1024
         if out_pos < out_size:
 
-            to_index(out_pos, out_shape, out_index)
+            to_index(out_pos, out_shape, out_index) 
 
             # TODO check if works for out_index[reduce_dim] > 1 
             # TODO probably not, but maybe we don't need to fix it yet
