@@ -523,6 +523,7 @@ def _tensor_matrix_multiply(
     """
     a_batch_stride = a_strides[0] if a_shape[0] > 1 else 0
     b_batch_stride = b_strides[0] if b_shape[0] > 1 else 0
+    out_batch_stride = out_strides[0] if out_shape[0] > 1 else 0
     # Batch dimension - fixed
     batch = cuda.blockIdx.z
 
@@ -547,34 +548,42 @@ def _tensor_matrix_multiply(
     #    b) Copy into shared memory for b matrix
     #    c) Compute the dot produce for position c[i, j]
 
-    # first, copy both a and b to shared memory
-    if i < BLOCK_DIM and j < BLOCK_DIM:
-        # get the base index for the batch
-        a_base_ord = batch * a_batch_stride
-        b_base_ord = batch * b_batch_stride
+    # TODO we assume that shape has length 3, i.e. only one batch dimension, fix this?
 
-        # get the base index for the current iteration
-        a_base_ord += 0
-
-        a_shared[i,j] = a_storage[a_base_ord + pi*a_strides[-2] + pj*a_strides[-1]]
-        b_shared[i,j] = b_storage[b_base_ord + pi*b_strides[-2] + pj*b_strides[-1]]
-    # synchronize threads
-    cuda.syncthreads()
-
-    # now, compute the dot product at each index
-    # where each index is a thread
+    # tile movement
     width_in_blocks = -(sum_size // -BLOCK_DIM)
+    val = 0.0
     for K in range(width_in_blocks):
         # combine tile at (i, K) and (K, j)
-        pass
-    if i < BLOCK_DIM and j < BLOCK_DIM:
-        val = 0.0
+
+        # for a, i index never changes, but j increments by BLOCK_DIM
+        a_copy_i = pi
+        a_copy_j = K*BLOCK_DIM + pj
+
+        # for b, j index never changes, but i increments by BLOCK_DIM
+        b_copy_i = K*BLOCK_DIM + pi
+        b_copy_j = pj
+        
+        # now, copy both a and b tiles to shared memory
+        if a_copy_i < a_shape[-2] and a_copy_j < a_shape[-1]:
+            a_shared[i,j] = a_storage[batch*a_batch_stride + \
+                                  a_copy_i*a_strides[-2] + a_copy_j*a_strides[-1]]
+        else:
+            a_shared[i,j] = 0.0
+        if b_copy_i < b_shape[-2] and b_copy_j < b_shape[-1]:
+            b_shared[i,j] = b_storage[batch*b_batch_stride + \
+                                  b_copy_i*b_strides[-2] + b_copy_j*b_strides[-1]]
+        else:
+            b_shared[i,j] = 0.0
+        # synchronize threads
+        cuda.syncthreads()
+
+        # now, compute the dot product at each index
         for k in range(BLOCK_DIM):
             val += a_shared[i,k] * b_shared[k,j]
-        # write to global memory in parallel
-    
+
     # final global write
-    ordin = batch*out_strides[0] + i*out_strides[-2] \
+    ordin = batch*out_batch_stride + i*out_strides[-2] \
         + j*out_strides[-1]
     if ordin < out_size:
         out[ordin] = val
