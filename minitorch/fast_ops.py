@@ -233,7 +233,6 @@ def tensor_zip(
             and np.array_equal(a_strides, b_strides)
             and np.array_equal(a_strides, out_strides)
         ):
-            print(out_shape, a_shape, b_shape)
             for i in prange(len(out)):
                 out[i] = fn(a_storage[i], b_storage[i])
             return
