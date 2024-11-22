@@ -30,6 +30,7 @@ from .tensor_functions import (
     Sigmoid,
     Sum,
     View,
+    tensor,
 )
 
 if TYPE_CHECKING:
@@ -388,7 +389,7 @@ class Tensor:
 
     def view(self, *dim: int) -> Tensor:
         """Reshape tensor to shape."""
-        shape = Tensor.make(list(dim), (len(dim),), backend=self.backend)
+        shape = tensor(list(dim))
         return View.apply(self, shape)
 
     def permute(self, *dim: int) -> Tensor:

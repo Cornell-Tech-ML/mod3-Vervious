@@ -58,6 +58,63 @@ Size: 1024
 
 # Task 3.5
 
+## Split dataset (CPU)
+
+My CPU code is much faster than GPU.
+
+```Epoch  0  loss  6.545254595798193 correct 35 | avgtime 16.554
+Epoch  10  loss  5.882552831366212 correct 41 | avgtime 1.602
+Epoch  20  loss  5.0088863746953525 correct 42 | avgtime 0.890
+Epoch  30  loss  4.0711962325745565 correct 47 | avgtime 0.637
+Epoch  40  loss  5.508395816836496 correct 45 | avgtime 0.508
+Epoch  50  loss  3.4344649768280497 correct 48 | avgtime 0.431
+Epoch  60  loss  3.3256651689566255 correct 48 | avgtime 0.386
+Epoch  70  loss  2.7976682240061947 correct 46 | avgtime 0.358
+Epoch  80  loss  1.5683983399284787 correct 46 | avgtime 0.327
+Epoch  90  loss  2.4670973241196505 correct 48 | avgtime 0.303
+Epoch  100  loss  3.3420234745751314 correct 47 | avgtime 0.283
+Epoch  110  loss  0.913715197223898 correct 46 | avgtime 0.268
+Epoch  120  loss  1.0045090195654032 correct 48 | avgtime 0.254
+Epoch  130  loss  1.9710111966024602 correct 48 | avgtime 0.244
+Epoch  140  loss  3.609493947608123 correct 46 | avgtime 0.234
+Epoch  150  loss  4.823268815649602 correct 42 | avgtime 0.226
+Epoch  160  loss  1.7254942459388565 correct 49 | avgtime 0.219
+Epoch  170  loss  1.2560372974715999 correct 48 | avgtime 0.217
+Epoch  180  loss  2.018574390962187 correct 49 | avgtime 0.213
+Epoch  190  loss  3.3214933566231664 correct 48 | avgtime 0.207
+Epoch  200  loss  1.5085674380147893 correct 47 | avgtime 0.202
+Epoch  210  loss  0.9109054588775083 correct 48 | avgtime 0.198
+Epoch  220  loss  0.7720028749682564 correct 49 | avgtime 0.194
+Epoch  230  loss  1.9145758219981495 correct 49 | avgtime 0.190
+Epoch  240  loss  0.9277635751483944 correct 47 | avgtime 0.187
+Epoch  250  loss  2.097164626427681 correct 46 | avgtime 0.184
+Epoch  260  loss  1.090116463425204 correct 48 | avgtime 0.181
+Epoch  270  loss  2.6417012504470097 correct 45 | avgtime 0.181
+Epoch  280  loss  0.786678925851568 correct 49 | avgtime 0.180
+Epoch  290  loss  1.15022524108246 correct 49 | avgtime 0.177
+Epoch  300  loss  0.835947322650515 correct 49 | avgtime 0.175
+Epoch  310  loss  0.45595895331710967 correct 46 | avgtime 0.173
+Epoch  320  loss  1.2239548780446619 correct 49 | avgtime 0.171
+Epoch  330  loss  1.2934602387150584 correct 48 | avgtime 0.169
+Epoch  340  loss  1.039486159042603 correct 48 | avgtime 0.167
+Epoch  350  loss  1.304452569172477 correct 49 | avgtime 0.166
+Epoch  360  loss  0.5022865098005084 correct 49 | avgtime 0.164
+Epoch  370  loss  3.2263505671907806 correct 50 | avgtime 0.163
+Epoch  380  loss  3.042644068760375 correct 47 | avgtime 0.164
+Epoch  390  loss  0.8808871930509193 correct 48 | avgtime 0.163
+Epoch  400  loss  0.33436994378541063 correct 49 | avgtime 0.161
+Epoch  410  loss  1.9722509586447228 correct 49 | avgtime 0.160
+Epoch  420  loss  3.0897019860232944 correct 50 | avgtime 0.159
+Epoch  430  loss  3.7557912186547413 correct 43 | avgtime 0.158
+Epoch  440  loss  0.8956850740109825 correct 49 | avgtime 0.156
+Epoch  450  loss  1.1257784172737209 correct 50 | avgtime 0.155
+Epoch  460  loss  0.5749561598007561 correct 49 | avgtime 0.154
+Epoch  470  loss  0.522239760234002 correct 49 | avgtime 0.153
+Epoch  480  loss  3.9949355923018586 correct 45 | avgtime 0.154
+Epoch  490  loss  0.8720198059337276 correct 46 | avgtime 0.154
+```
+
+
 ## Split dataset (GPU)
 ```
 Epoch  0  loss  7.464073762413637 correct 36 | avgtime 4.068
